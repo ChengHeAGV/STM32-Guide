@@ -8,7 +8,7 @@
 
 u8 num=0;
 
-u16 adc1[16];//ƒ¨»œ≤Œ ˝
+//u16 adc1[16];//ƒ¨»œ≤Œ ˝
 u16 adc2[16];
 u16 tempmem[20];//ƒ⁄¥Ê
 u16 led[16];
@@ -36,18 +36,17 @@ u8 CAN_Mode_Init(u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
                 											 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);// πƒ‹CAN1 ±÷”
 	
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//∏¥”√Õ∆ÕÏ
-	GPIO_Init(GPIOB, &GPIO_InitStructure);			//≥ı ºªØIO
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	//…œ¿≠ ‰»
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);			//≥ı ºªØIO
-	
-	GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);//∂Àø⁄÷ÿ”≥…‰
+	GPIO_Init(GPIOA, &GPIO_InitStructure);			//≥ı ºªØIO
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//∏¥”√Õ∆ÕÏ
+	GPIO_Init(GPIOA, &GPIO_InitStructure);			//≥ı ºªØIO
+
+	//GPIO_PinRemapConfig(GPIO_Remap1_CAN1, ENABLE);//∂Àø⁄÷ÿ”≥…‰
 	/* CAN register init */  
 	CAN_DeInit(CAN1);
 	CAN_StructInit(&CAN_InitStructure);
@@ -106,6 +105,7 @@ u8 CAN_Mode_Init(u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 //÷–∂œ∑˛ŒÒ∫Ø ˝			    
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
+	  u8 buf[2];
   	CanRxMsg RxMessage;
     CAN_Receive(CAN1, 0, &RxMessage);
 	
@@ -117,16 +117,50 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 				if(RxMessage.Data[1]==2) //…Ë÷√
 				{
 					Read_ID = RxMessage.Data[2];//∏¸–¬ID
-					WriteFlashOneWord(17,Read_ID);//–¥»Îflash
+					tempmem[17] = Read_ID;
+					FLASH_WRITE(tempmem, 20);
 				}
 			}
 			//„–÷µ
 			else if(RxMessage.Data[0]==3) 
 			{
+				if(RxMessage.Data[1]==1) //≤È—Ø
+				{
+					buf[0] = 3;
+					buf[1] = threshold;
+					Can_Send_Msg(buf,2);
+				}
+				else
 				if(RxMessage.Data[1]==2) //…Ë÷√
 				{
 					threshold = RxMessage.Data[2];//∏¸–¬„–÷µ
-					WriteFlashOneWord(18,threshold);//–¥»Îflash
+					tempmem[18] = threshold;
+					FLASH_WRITE(tempmem, 20);
+				}
+			}
+			//¥≈µº∫Ωƒ¨»œAD÷µ
+			else if(RxMessage.Data[0]==4) 
+			{
+				if(RxMessage.Data[1]==2) //…Ë÷√
+				{
+					tempmem[0] = (After_filter[0] * 330 / 4096);
+					tempmem[1] = (After_filter[1] * 330 / 4096);
+					tempmem[2] = (After_filter[2] * 330 / 4096);
+					tempmem[3] = (After_filter[3] * 330 / 4096);
+					tempmem[4] = (After_filter[4] * 330 / 4096);
+					tempmem[5] = (After_filter[5] * 330 / 4096);
+					tempmem[6] = (After_filter[6] * 330 / 4096);
+					tempmem[7] = (After_filter[7] * 330 / 4096);
+					tempmem[8] = (After_filter[8] * 330 / 4096);
+					tempmem[9] = (After_filter[9] * 330 / 4096);
+					tempmem[10] = (After_filter[10] * 330 / 4096);
+					tempmem[11] = (After_filter[11] * 330 / 4096);
+					tempmem[12] = (After_filter[12] * 330 / 4096);
+					tempmem[13] = (After_filter[13] * 330 / 4096);
+					tempmem[14] = (After_filter[14] * 330 / 4096);
+					tempmem[15] = (After_filter[15] * 330 / 4096);
+					
+					FLASH_WRITE(tempmem, 20);
 				}
 			}
 		}
@@ -184,9 +218,9 @@ u8 Can_Receive_Msg(u8 *buf)
     buf[i]=RxMessage.Data[i];  
 	return RxMessage.DLC;	
 }
-u8 cansend[2]={0,0};
+u8 cansend[3]={0,0,0};
 void send(void)
 {
 	//cansend[0]=led[7]|led[6]<<1|led[5]<<2|led[4]<<3|led[3]<<4|led[2]<<5|led[1]<<6|led[0]<<7;
-	Can_Send_Msg(cansend,2);
+	Can_Send_Msg(cansend,3);
 }

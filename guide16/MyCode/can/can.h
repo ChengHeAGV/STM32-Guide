@@ -15,7 +15,7 @@ u8 Can_Receive_Msg(u8 *buf);							//接收数据
 
 void send(void);
 
-extern u8 cansend[2];
+extern u8 cansend[3];
 extern u16 adc1[16];//第一次上电AD值
 extern u16 adc2[16];//当前AD值
 extern u16 tempmem[20];//内存

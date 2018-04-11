@@ -1,7 +1,7 @@
 #include "adc.h"
 #include "stm32f10x.h"                  // Device header
 #include "dma.h"
-#define N 30
+#define N 10
 float  After_filter[16];
 void ADC1_Configuration(void)   
 {   
@@ -85,8 +85,8 @@ u16 filter_super(u16 *num, u8 n)
 	u16 sum= 0;	
 	u16 temp = 0;
 	
-	u16 start=10;
-	u16 stop=n-10;
+	u16 start=3;
+	u16 stop=n-3;
 
 	for(i = 0; i < n; i++) 
 	{

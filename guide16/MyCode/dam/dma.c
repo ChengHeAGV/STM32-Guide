@@ -43,7 +43,7 @@ void DMA_ADC_Configuration(void)
     DMA_InitStructure.DMA_MemoryBaseAddr = (u32)&AD_Value;   
     DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;   
  
-    DMA_InitStructure.DMA_BufferSize = 480;   
+    DMA_InitStructure.DMA_BufferSize = 160;   
     DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;   
     DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;   
     DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;   
